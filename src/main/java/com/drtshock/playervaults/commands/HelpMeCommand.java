@@ -30,7 +30,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.kitteh.pastegg.PasteBuilder;
 import org.kitteh.pastegg.PasteContent;
 import org.kitteh.pastegg.PasteFile;
@@ -78,7 +77,7 @@ public class HelpMeCommand implements CommandExecutor {
                 mainInfo.append("  ").append(plugin.getDescription().getAuthors()).append('\n');
             }
 
-            new BukkitRunnable() {
+            plugin.getScheduler().getImpl().runAsync(new Runnable() {
                 private final PasteBuilder builder = new PasteBuilder().name("PlayerVaultsX Debug")
                         .visibility(Visibility.UNLISTED)
                         .expires(ZonedDateTime.now(ZoneOffset.UTC).plusDays(3));
@@ -107,32 +106,24 @@ public class HelpMeCommand implements CommandExecutor {
                         }
                         add("config.conf", getFile(dataPath.resolve("config.conf")));
                         PasteBuilder.PasteResult result = builder.build();
-                        new BukkitRunnable() {
-                            @Override
-                            public void run() {
-                                Audience audience = PlayerVaults.getInstance().getPlatform().sender(sender);
-                                if (result.getPaste().isPresent()) {
-                                    String delKey = result.getPaste().get().getDeletionKey().orElse("No deletion key");
-                                    String url = "https://paste.gg/anonymous/" + result.getPaste().get().getId();
-                                    audience.sendMessage(Component.text("URL generated: ").append(Component.text().clickEvent(ClickEvent.openUrl(url)).content(url)));
-                                    audience.sendMessage(MiniMessage.miniMessage().deserialize((sender instanceof Player ? "<rainbow>" : "<green>") + "Deletion key:</rainbow> " + delKey));
-                                } else {
-                                    audience.sendMessage(MiniMessage.miniMessage().deserialize("<red>Failed to generate output. See console for details."));
-                                    PlayerVaults.getInstance().getLogger().warning("Received: " + result.getMessage());
-                                }
+                        plugin.getScheduler().getImpl().runNextTick(() -> {
+                            Audience audience = PlayerVaults.getInstance().getPlatform().sender(sender);
+                            if (result.getPaste().isPresent()) {
+                                String delKey = result.getPaste().get().getDeletionKey().orElse("No deletion key");
+                                String url = "https://paste.gg/anonymous/" + result.getPaste().get().getId();
+                                audience.sendMessage(Component.text("URL generated: ").append(Component.text().clickEvent(ClickEvent.openUrl(url)).content(url)));
+                                audience.sendMessage(MiniMessage.miniMessage().deserialize((sender instanceof Player ? "<rainbow>" : "<green>") + "Deletion key:</rainbow> " + delKey));
+                            } else {
+                                audience.sendMessage(MiniMessage.miniMessage().deserialize("<red>Failed to generate output. See console for details."));
+                                PlayerVaults.getInstance().getLogger().warning("Received: " + result.getMessage());
                             }
-                        }.runTask(PlayerVaults.getInstance());
+                        });
                     } catch (Exception e) {
                         PlayerVaults.getInstance().getLogger().log(Level.SEVERE, "Failed to execute debug command", e);
-                        new BukkitRunnable() {
-                            @Override
-                            public void run() {
-                                PlayerVaults.getInstance().getPlatform().sender(sender).sendMessage(MiniMessage.miniMessage().deserialize("<red>Failed to generate output. See console for details."));
-                            }
-                        }.runTask(PlayerVaults.getInstance());
+                        plugin.getScheduler().getImpl().runNextTick(() -> PlayerVaults.getInstance().getPlatform().sender(sender).sendMessage(MiniMessage.miniMessage().deserialize("<red>Failed to generate output. See console for details.")));
                     }
                 }
-            }.runTaskAsynchronously(PlayerVaults.getInstance());
+            });
         }
         return true;
     }

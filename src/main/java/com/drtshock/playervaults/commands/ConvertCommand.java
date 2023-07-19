@@ -27,6 +27,7 @@ import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class ConvertCommand implements CommandExecutor {
 
@@ -65,7 +66,7 @@ public class ConvertCommand implements CommandExecutor {
                 } else {
                     // Fork into background
                     this.plugin.getTL().convertBackground().title().send(sender);
-                    PlayerVaults.getInstance().getServer().getScheduler().runTaskLaterAsynchronously(PlayerVaults.getInstance(), () -> {
+                    PlayerVaults.getInstance().getScheduler().getImpl().runLaterAsync(() -> {
                         int converted = 0;
                         VaultOperations.setLocked(true);
                         for (Converter converter : applicableConverters) {
@@ -75,7 +76,7 @@ public class ConvertCommand implements CommandExecutor {
                         }
                         VaultOperations.setLocked(false);
                         this.plugin.getTL().convertComplete().title().with("count", converted + "").send(sender);
-                    }, 5);
+                    }, 250L, TimeUnit.MILLISECONDS);
                 }
             }
         }
