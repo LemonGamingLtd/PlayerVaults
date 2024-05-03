@@ -45,16 +45,12 @@
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <relocations>
                         <relocation>
-                            <pattern>net.kyori</pattern>
-                            <shadedPattern>com.drtshock.playervaults.lib.net.kyori</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>com.google.gson</pattern>
-                            <shadedPattern>com.drtshock.playervaults.lib.com.google.gson</shadedPattern>
-                        </relocation>
-                        <relocation>
                             <pattern>org.kitteh</pattern>
                             <shadedPattern>com.drtshock.playervaults.lib.org.kitteh</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.tcoded</pattern>
+                            <shadedPattern>com.drtshock.playervaults.lib.com.tcoded</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -117,50 +113,10 @@
 
     <dependencies>
         <dependency>
-            <groupId>net.kyori</groupId>
-            <artifactId>adventure-platform-bukkit</artifactId>
-            <version>4.3.2</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-            <exclusions>
-                <exclusion>
-                    <artifactId>checker-qual</artifactId>
-                    <groupId>org.checkerframework</groupId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.jetbrains</groupId>
-                    <artifactId>annotations</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>net.kyori</groupId>
-            <artifactId>adventure-text-minimessage</artifactId>
-            <version>4.15.0</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-            <exclusions>
-                <exclusion>
-                    <artifactId>checker-qual</artifactId>
-                    <groupId>org.checkerframework</groupId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.jetbrains</groupId>
-                    <artifactId>annotations</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>net.kyori</groupId>
-            <artifactId>adventure-api</artifactId>
-            <version>4.14.0</version>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.20.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.10.1</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.kitteh</groupId>
@@ -173,12 +129,6 @@
             <artifactId>paste-gg-api</artifactId>
             <version>0.9.1</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.papermc.paper</groupId>
-            <artifactId>paper-api</artifactId>
-            <version>1.20.4-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>

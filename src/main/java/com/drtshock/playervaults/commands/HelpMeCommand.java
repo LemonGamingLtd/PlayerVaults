@@ -19,7 +19,6 @@
 package com.drtshock.playervaults.commands;
 
 import com.drtshock.playervaults.PlayerVaults;
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -35,7 +34,6 @@ import org.kitteh.pastegg.PasteFile;
 import org.kitteh.pastegg.Visibility;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZoneOffset;
@@ -61,9 +59,8 @@ public class HelpMeCommand implements CommandExecutor {
             mainInfo.append("Plugin ").append(likesCats ? "version" : "Version").append(": ").append(plugin.getDescription().getVersion()).append('\n');
             mainInfo.append("Java version: ").append(System.getProperty("java.version")).append('\n');
             if (args.length >= 1 && args[0].equalsIgnoreCase("mini")) {
-                Audience audience = PlayerVaults.getInstance().getPlatform().sender(sender);
                 for (String string : mainInfo.toString().split("\n")) {
-                    audience.sendMessage(MiniMessage.miniMessage().deserialize((sender instanceof Player ? "<rainbow>" : "<green>") + string));
+                    sender.sendMessage(MiniMessage.miniMessage().deserialize((sender instanceof Player ? "<rainbow>" : "<green>") + string));
                 }
                 return true;
             }
@@ -78,8 +75,8 @@ public class HelpMeCommand implements CommandExecutor {
 
             plugin.getScheduler().getImpl().runAsync(new Runnable() {
                 private final PasteBuilder builder = new PasteBuilder().name("PlayerVaultsX Debug")
-                        .visibility(Visibility.UNLISTED)
-                        .expires(ZonedDateTime.now(ZoneOffset.UTC).plusDays(3));
+                    .visibility(Visibility.UNLISTED)
+                    .expires(ZonedDateTime.now(ZoneOffset.UTC).plusDays(3));
                 private int i = 0;
 
                 private void add(String name, String content) {
@@ -107,20 +104,19 @@ public class HelpMeCommand implements CommandExecutor {
                         add("config.conf", getFile(dataPath.resolve("config.conf")));
                         PasteBuilder.PasteResult result = builder.build();
                         plugin.getScheduler().getImpl().runNextTick(() -> {
-                            Audience audience = PlayerVaults.getInstance().getPlatform().sender(sender);
                             if (result.getPaste().isPresent()) {
                                 String delKey = result.getPaste().get().getDeletionKey().orElse("No deletion key");
                                 String url = "https://paste.gg/anonymous/" + result.getPaste().get().getId();
-                                audience.sendMessage(Component.text("URL generated: ").append(Component.text().clickEvent(ClickEvent.openUrl(url)).content(url)));
-                                audience.sendMessage(MiniMessage.miniMessage().deserialize((sender instanceof Player ? "<rainbow>" : "<green>") + "Deletion key:</rainbow> " + delKey));
+                                sender.sendMessage(Component.text("URL generated: ").append(Component.text().clickEvent(ClickEvent.openUrl(url)).content(url)));
+                                sender.sendMessage(MiniMessage.miniMessage().deserialize((sender instanceof Player ? "<rainbow>" : "<green>") + "Deletion key:</rainbow> " + delKey));
                             } else {
-                                audience.sendMessage(MiniMessage.miniMessage().deserialize("<red>Failed to generate output. See console for details."));
+                                sender.sendMessage(MiniMessage.miniMessage().deserialize("<red>Failed to generate output. See console for details."));
                                 PlayerVaults.getInstance().getLogger().warning("Received: " + result.getMessage());
                             }
                         });
                     } catch (Exception e) {
                         PlayerVaults.getInstance().getLogger().log(Level.SEVERE, "Failed to execute debug command", e);
-                        plugin.getScheduler().getImpl().runNextTick(() -> PlayerVaults.getInstance().getPlatform().sender(sender).sendMessage(MiniMessage.miniMessage().deserialize("<red>Failed to generate output. See console for details.")));
+                        plugin.getScheduler().getImpl().runNextTick(() -> sender.sendMessage(MiniMessage.miniMessage().deserialize("<red>Failed to generate output. See console for details.")));
                     }
                 }
             });

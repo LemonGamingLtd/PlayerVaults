@@ -3,8 +3,6 @@ package com.drtshock.playervaults.config.file;
 import com.drtshock.playervaults.PlayerVaults;
 import com.drtshock.playervaults.config.annotation.Comment;
 import com.google.common.collect.ImmutableMap;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -12,6 +10,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.CommandSender;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -88,15 +87,11 @@ public class Translation {
         }
 
         private void send(@NonNull CommandSender sender, @NonNull Map<String, String> map, @Nullable TL title) {
-            this.send(TL.plugin.getPlatform().sender(sender), map, title);
-        }
-
-        private void send(@NonNull Audience audience, @NonNull Map<String, String> map, @Nullable TL title) {
             this.forEach(line -> {
                 if (line == null || line.isEmpty()) {
                     return;
                 }
-                audience.sendMessage(this.getComponent(line, map, title));
+                sender.sendMessage(this.getComponent(line, map, title));
             });
         }
 
@@ -123,10 +118,10 @@ public class Translation {
 
         public @NonNull String getLegacy(@NonNull Map<String, String> map, @Nullable TL title) {
             return this.stream()
-                    .map(line -> this.getComponent(line, map, title))
-                    .filter(Objects::nonNull)
-                    .map(component -> BukkitComponentSerializer.legacy().serialize(component))
-                    .collect(Collectors.joining("\n"));
+                .map(line -> this.getComponent(line, map, title))
+                .filter(Objects::nonNull)
+                .map(component -> LegacyComponentSerializer.legacySection().serialize(component))
+                .collect(Collectors.joining("\n"));
         }
 
         public boolean arrContains(@Nullable String[] array, @NonNull String target) {
