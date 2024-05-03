@@ -18,6 +18,7 @@
 
 package com.drtshock.playervaults;
 
+import com.drtshock.playervaults.commands.ConsoleCommand;
 import com.drtshock.playervaults.commands.ConvertCommand;
 import com.drtshock.playervaults.commands.DeleteCommand;
 import com.drtshock.playervaults.commands.HelpMeCommand;
@@ -51,8 +52,11 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.kitteh.cardboardbox.CardboardBox;
 import sun.misc.Unsafe;
 
 import java.io.BufferedReader;
@@ -95,6 +99,8 @@ public class PlayerVaults extends JavaPlugin {
     // VaultViewInfo - Inventory
     private final HashMap<String, Inventory> openInventories = new HashMap<>();
     private final Set<Material> blockedMats = new HashSet<>();
+    private boolean blockWithModelData = false;
+    private boolean blockWithoutModelData = false;
     private boolean useVault;
     private YamlConfiguration signs;
     private File signsFile;
@@ -132,9 +138,19 @@ public class PlayerVaults extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        instance = this;
         scheduler = new FoliaLib(this);
-
+        if (!CardboardBox.isReady()) {
+            Exception ex = null;
+            try {
+                CardboardBox.serializeItem(new ItemStack(Material.STONE));
+            } catch (Exception e) {
+                ex = e;
+            }
+            this.getLogger().log(Level.SEVERE, "Could not initialize!", ex);
+            this.getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        instance = this;
         long start = System.currentTimeMillis();
         long time = System.currentTimeMillis();
         UpdateCheck update = new UpdateCheck("PlayerVaultsX", this.getDescription().getVersion(), this.getServer().getName(), this.getServer().getVersion());
@@ -168,6 +184,7 @@ public class PlayerVaults extends JavaPlugin {
         getCommand("pvconvert").setExecutor(new ConvertCommand(this));
         getCommand("pvsign").setExecutor(new SignCommand(this));
         getCommand("pvhelpme").setExecutor(new HelpMeCommand(this));
+        getCommand("pvconsole").setExecutor(new ConsoleCommand(this));
         update.meow = this.getClass().getDeclaredMethods().length;
         debug("registered commands", time);
         time = System.currentTimeMillis();
@@ -391,14 +408,28 @@ public class PlayerVaults extends JavaPlugin {
 
         // Clear just in case this is a reload.
         blockedMats.clear();
+        this.blockWithModelData = false;
+        this.blockWithoutModelData = false;
         if (getConf().getItemBlocking().isEnabled()) {
             for (String s : getConf().getItemBlocking().getList()) {
+                if (s.equalsIgnoreCase("BLOCK_ALL_WITH_CUSTOM_MODEL_DATA")) {
+                    this.blockWithModelData = true;
+                }
+                if (s.equalsIgnoreCase("BLOCK_ALL_WITHOUT_CUSTOM_MODEL_DATA")) {
+                    this.blockWithoutModelData = true;
+                }
                 Material mat = Material.matchMaterial(s);
                 if (mat != null) {
                     blockedMats.add(mat);
                     getLogger().log(Level.INFO, "Added {0} to list of blocked materials.", mat.name());
                 }
             }
+        }
+        try {
+            ItemMeta.class.getMethod("hasCustomModelData");
+        } catch (NoSuchMethodException e) {
+            this.blockWithModelData = false;
+            this.blockWithoutModelData = false;
         }
 
         File lang = new File(this.getDataFolder(), "lang");
@@ -556,6 +587,14 @@ public class PlayerVaults extends JavaPlugin {
 
     public boolean isBlockedMaterial(Material mat) {
         return blockedMats.contains(mat);
+    }
+
+    public boolean isBlockWithModelData() {
+        return this.blockWithModelData;
+    }
+
+    public boolean isBlockWithoutModelData() {
+        return this.blockWithoutModelData;
     }
 
     /**
