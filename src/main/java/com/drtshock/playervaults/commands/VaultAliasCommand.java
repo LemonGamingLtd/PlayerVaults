@@ -40,7 +40,7 @@ public class VaultAliasCommand implements CommandExecutor {
             return true;
         }
 
-        if (VaultOperations.checkPerms(player, number)) {
+        if (!VaultOperations.checkPerms(player, number)) {
             this.plugin.getTL().noPerms().title().send(player);
             return true;
         }

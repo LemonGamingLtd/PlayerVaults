@@ -22,6 +22,7 @@ import com.drtshock.playervaults.PlayerVaults;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -30,7 +31,9 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -39,7 +42,8 @@ import java.util.logging.Level;
 
 public class VaultManager {
 
-    private static final String VAULTKEY = "vault%d";
+    private static final String VAULTKEYNAME = "vault";
+    private static final String VAULTKEY = VAULTKEYNAME + "%d";
     private static VaultManager instance;
     private final File directory = PlayerVaults.getInstance().getVaultData();
     private final Map<String, YamlConfiguration> cachedVaultFiles = new ConcurrentHashMap<>();
@@ -71,7 +75,7 @@ public class VaultManager {
         if (playerFile == null) {
             return -1;
         }
-        return playerFile.getInt("vaultaliases." + alias, -1);
+        return playerFile.getInt("vaultaliases." + alias.toLowerCase(), -1);
     }
 
     /**
@@ -86,7 +90,7 @@ public class VaultManager {
         if (playerFile == null) {
             return;
         }
-        playerFile.set("vaultaliases." + alias, number);
+        playerFile.set("vaultaliases." + alias.toLowerCase(), number);
         saveFileSync(playerId, playerFile);
     }
 
@@ -254,24 +258,27 @@ public class VaultManager {
      * @param holder holder
      * @return a set of Integers, which are player's vaults' numbers (fuck grammar).
      */
-    public Set<Integer> getVaultNumbers(String holder) {
-        Set<Integer> vaults = new HashSet<>();
+    public List<String> getVaultNumbers(String holder) {
+        List<String> vaults = new ArrayList<>();
         YamlConfiguration file = getPlayerVaultFile(holder, true);
         if (file == null) {
             return vaults;
         }
 
+        final ConfigurationSection aliasesSection = file.getConfigurationSection("vaultaliases");
+        if (aliasesSection != null) {
+            vaults.addAll(aliasesSection.getKeys(false));
+        }
+
         for (String s : file.getKeys(false)) {
             try {
                 // vault%
-                int number = Integer.parseInt(s.substring(4));
-                vaults.add(number);
+                int number = Integer.parseInt(s.replace(VAULTKEYNAME, ""));
+                vaults.add(String.valueOf(number));
             } catch (NumberFormatException e) {
                 // silent
             }
         }
-
-
         return vaults;
     }
 

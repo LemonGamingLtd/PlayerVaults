@@ -142,7 +142,7 @@ public class Translation {
     }
 
     private static class Translations {
-        private TL openVault = TL.of("<normal>Opening vault <info><vault></info>");
+        private TL openVault = TL.of("<normal>Opening vault <info><vault> <alias></info>");
         private TL openOtherVault = TL.of("<normal>Opening vault <info><vault></info> of <info><player></info>");
         private TL invalidArgs = TL.of("<error>Invalid args!");
         private TL deleteVault = TL.of("<normal>Deleted vault <info><vault></info>");

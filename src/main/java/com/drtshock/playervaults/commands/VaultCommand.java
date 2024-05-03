@@ -27,10 +27,13 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-public class VaultCommand implements CommandExecutor {
+import java.util.List;
+
+public class VaultCommand implements CommandExecutor, TabCompleter {
     private final PlayerVaults plugin;
 
     public VaultCommand(PlayerVaults plugin) {
@@ -53,7 +56,7 @@ public class VaultCommand implements CommandExecutor {
             switch (args.length) {
                 case 1:
                     if (VaultOperations.openOwnVault(player, args[0], true)) {
-                        PlayerVaults.getInstance().getInVault().put(player.getUniqueId().toString(), new VaultViewInfo(player.getUniqueId().toString(), Integer.parseInt(args[0])));
+                        return true;
                     } else if (sender.hasPermission("playervaults.admin")) {
                         OfflinePlayer searchPlayer = Bukkit.getOfflinePlayer(args[0]);
                         String target = args[0];
@@ -107,5 +110,13 @@ public class VaultCommand implements CommandExecutor {
         }
 
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] args) {
+        if (args.length != 1 || !(commandSender instanceof Player player)) {
+            return null;
+        }
+        return VaultManager.getInstance().getVaultNumbers(player.getUniqueId().toString());
     }
 }

@@ -47,6 +47,7 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -176,7 +177,9 @@ public class PlayerVaults extends JavaPlugin {
         debug("loaded signs", time);
         time = System.currentTimeMillis();
         update.spigotId = "%%__USER__%%";
-        getCommand("pv").setExecutor(new VaultCommand(this));
+        final VaultCommand vaultCommand = new VaultCommand(this);
+        getCommand("pv").setExecutor(vaultCommand);
+        getCommand("pv").setTabCompleter(vaultCommand);
         getCommand("pvalias").setExecutor(new VaultAliasCommand(this));
         getCommand("pvdel").setExecutor(new DeleteCommand(this));
         getCommand("pvconvert").setExecutor(new ConvertCommand(this));

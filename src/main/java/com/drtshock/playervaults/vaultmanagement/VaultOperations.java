@@ -19,6 +19,7 @@
 package com.drtshock.playervaults.vaultmanagement;
 
 import com.drtshock.playervaults.PlayerVaults;
+import com.drtshock.playervaults.config.file.Translation;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -141,11 +142,14 @@ public class VaultOperations {
         if (player.isSleeping() || player.isDead() || !player.isOnline()) {
             return false;
         }
+
+        String alias = null;
         int number;
         try {
             number = Integer.parseInt(arg);
         } catch (NumberFormatException nfe) {
             number = VaultManager.getInstance().getVaultNumberAlias(player.getUniqueId().toString(), arg);
+            if (number > 0) alias = arg;
         }
 
         if (number < 1) {
@@ -171,9 +175,14 @@ public class VaultOperations {
 
                 VaultViewInfo info = new VaultViewInfo(player.getUniqueId().toString(), number);
                 PlayerVaults.getInstance().getOpenInventories().put(info.toString(), inv);
+                PlayerVaults.getInstance().getInVault().put(player.getUniqueId().toString(), info);
 
                 if (send) {
-                    PlayerVaults.getInstance().getTL().openVault().title().with("vault", arg).send(player);
+                    final Translation.TL.Builder builder = PlayerVaults.getInstance().getTL().openVault().title().with("vault", arg);
+                    if (alias != null) {
+                        builder.with("alias", alias);
+                    }
+                    builder.send(player);
                 }
                 return true;
             } else {
