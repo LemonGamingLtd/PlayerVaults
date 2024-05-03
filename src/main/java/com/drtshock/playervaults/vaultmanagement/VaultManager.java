@@ -60,6 +60,37 @@ public class VaultManager {
     }
 
     /**
+     * Get the vault number for the given alias.
+     *
+     * @param playerId UUID of the player to fetch alias for.
+     * @param alias Alias to try.
+     * @return Vault number, {@code -1} if none could be found.
+     */
+    public int getVaultNumberAlias(String playerId, String alias) {
+        YamlConfiguration playerFile = getPlayerVaultFile(playerId, true);
+        if (playerFile == null) {
+            return -1;
+        }
+        return playerFile.getInt("vaultaliases." + alias, -1);
+    }
+
+    /**
+     * Set the wished vault number alias.
+     *
+     * @param playerId UUID of the player to set alias for.
+     * @param number Number of the vault referenced.
+     * @param alias Alias to set.
+     */
+    public void setVaultNumberAlias(String playerId, int number, String alias) {
+        YamlConfiguration playerFile = getPlayerVaultFile(playerId, true);
+        if (playerFile == null) {
+            return;
+        }
+        playerFile.set("vaultaliases." + alias, number);
+        saveFileSync(playerId, playerFile);
+    }
+
+    /**
      * Saves the inventory to the specified player and vault number.
      *
      * @param inventory The inventory to be saved.

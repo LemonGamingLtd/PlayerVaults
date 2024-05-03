@@ -173,11 +173,13 @@ public class Translation {
         private TL convertBackground = TL.of("<normal>Conversion has been forked to the background. See console for updates.");
         private TL locked = TL.of("<error>Vaults are currently locked while conversion occurs. Please try again in a moment!");
         private TL help = TL.of("/pv <number>");
+        private TL helpAlias = TL.of("<error>/pvalias <number> <alias></error>");
         private TL blockedItem = TL.of("<gold><item></gold> <error>is blocked from vaults.");
         private TL blockedItemWithModelData = TL.of("<error>This item is blocked from vaults.");
         private TL blockedItemWithoutModelData = TL.of("<error>This item is blocked from vaults.");
         private TL signsDisabled = TL.of("<error>Vault signs are currently disabled.");
         private TL blockedBadItem = TL.of("<error>This item is not allowed in a vault.");
+        private TL setAlias = TL.of("<normal>You have successfully set the alias <alias> for the vault: <vault>");
     }
 
     private Placeholders placeholders = new Placeholders();
@@ -268,6 +270,10 @@ public class Translation {
         return this.translations.setSign;
     }
 
+    public @NonNull TL setAlias() {
+        return this.translations.setAlias;
+    }
+
     public @NonNull TL existingVaults() {
         return this.translations.existingVaults;
     }
@@ -302,6 +308,10 @@ public class Translation {
 
     public @NonNull TL help() {
         return this.translations.help;
+    }
+
+    public @NonNull TL helpAlias() {
+        return this.translations.helpAlias;
     }
 
     public @NonNull TL blockedItem() {

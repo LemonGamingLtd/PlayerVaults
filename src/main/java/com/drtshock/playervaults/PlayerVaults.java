@@ -24,6 +24,7 @@ import com.drtshock.playervaults.commands.DeleteCommand;
 import com.drtshock.playervaults.commands.HelpMeCommand;
 import com.drtshock.playervaults.commands.SignCommand;
 import com.drtshock.playervaults.commands.SignSetInfo;
+import com.drtshock.playervaults.commands.VaultAliasCommand;
 import com.drtshock.playervaults.commands.VaultCommand;
 import com.drtshock.playervaults.config.Loader;
 import com.drtshock.playervaults.config.file.Config;
@@ -180,6 +181,7 @@ public class PlayerVaults extends JavaPlugin {
         time = System.currentTimeMillis();
         update.spigotId = "%%__USER__%%";
         getCommand("pv").setExecutor(new VaultCommand(this));
+        getCommand("pvalias").setExecutor(new VaultAliasCommand(this));
         getCommand("pvdel").setExecutor(new DeleteCommand(this));
         getCommand("pvconvert").setExecutor(new ConvertCommand(this));
         getCommand("pvsign").setExecutor(new SignCommand(this));

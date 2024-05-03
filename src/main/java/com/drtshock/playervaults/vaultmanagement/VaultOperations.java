@@ -144,10 +144,11 @@ public class VaultOperations {
         int number;
         try {
             number = Integer.parseInt(arg);
-            if (number < 1) {
-                return false;
-            }
         } catch (NumberFormatException nfe) {
+            number = VaultManager.getInstance().getVaultNumberAlias(player.getUniqueId().toString(), arg);
+        }
+
+        if (number < 1) {
             PlayerVaults.getInstance().getTL().mustBeNumber().title().send(player);
             return false;
         }
